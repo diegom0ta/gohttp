@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"context"
 )
+
+var srv *http.Server
 
 func readUserIP(r *http.Request) string {
 	IPAddress := r.Header.Get("X-Real-Ip")
@@ -17,11 +20,18 @@ func readUserIP(r *http.Request) string {
 }
 
 func getClientIP(w http.ResponseWriter, req *http.Request) {
-	ip := readUserIP(req)
-	fmt.Println(ip)
+	if ip := readUserIP(req); ip != "" {
+		fmt.Println(ip)
+		srv.Shutdown(context.TODO())
+	}
 }
 
 func main() {
+	port := ":8090"
+	
+	srv = new(http.Server)
+	srv.Addr = port
+
 	http.HandleFunc("/myip", getClientIP)
-	http.ListenAndServe(":8090", nil)
-}
+	srv.ListenAndServe()
+}	
