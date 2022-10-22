@@ -6,56 +6,29 @@ import (
 	"net/http"
 )
 
-type server struct {
-	port string
+const port = ":8090"
+
+var srv = new(http.Server)
+
+func readClientIp(r *http.Request) string {
+	ipAddr := r.Header.Get("X-Real-Ip")
+	if ipAddr == "" {
+		ipAddr = r.Header.Get("X-Forwarded-For")
+	}
+	if ipAddr == "" {
+		ipAddr = r.RemoteAddr
+	}
+	return ipAddr
 }
 
-func newServer(port string) *server {
-	srv := &server{
-		port: port,
-	}
-
-	return srv
-}
-
-var port = ":8090"
-
-var srv *http.Server
-
-func readClientIP(r *http.Request) string {
-	IPAddress := r.Header.Get("X-Real-Ip")
-	if IPAddress == "" {
-		IPAddress = r.Header.Get("X-Forwarded-For")
-	}
-	if IPAddress == "" {
-		IPAddress = r.RemoteAddr
-	}
-	return IPAddress
-}
-
-func closeConn(srv *http.Server) {
-	ctx := context.TODO()
-	srv.Shutdown(ctx)
-}
-
-func getClientIP(w http.ResponseWriter, req *http.Request) {
-	if ip := readClientIP(req); ip != "" {
-		log.Print("Client IP is: ", ip)
-	} else {
-		ctx := req.Context()
-		err := ctx.Err()
-		log.Fatal(err)
-		srv := new(http.Server)
-		closeConn(srv)
-	}
+func getClientIp(w http.ResponseWriter, req *http.Request) {
+	defer srv.Shutdown(context.TODO())
+	ip := readClientIp(req)
+	log.Printf("Client IP is: %s", ip)
 }
 
 func main() {
-	server := newServer(port)
-
-	srv = new(http.Server)
-	srv.Addr = server.port
-
-	http.HandleFunc("/ip", getClientIP)
+	srv.Addr = port
+	http.HandleFunc("/ip", getClientIp)
 	srv.ListenAndServe()
 }
