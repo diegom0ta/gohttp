@@ -1,3 +1,3 @@
-module gohttp.com/main
+module github.com/diegom0ta/gohttp
 
 go 1.19

@@ -1,34 +1,27 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net/http"
+	"os"
+
+	"github.com/diegom0ta/gohttp/src/handler"
 )
 
-const port = ":8090"
+var port = os.Getenv("PORT")
 
-var srv = new(http.Server)
-
-func readClientIp(r *http.Request) string {
-	ipAddr := r.Header.Get("X-Real-Ip")
-	if ipAddr == "" {
-		ipAddr = r.Header.Get("X-Forwarded-For")
-	}
-	if ipAddr == "" {
-		ipAddr = r.RemoteAddr
-	}
-	return ipAddr
-}
-
-func getClientIp(w http.ResponseWriter, req *http.Request) {
-	defer srv.Shutdown(context.TODO())
-	ip := readClientIp(req)
-	log.Printf("Client IP is: %s", ip)
-}
+const route = "/"
 
 func main() {
-	srv.Addr = port
-	http.HandleFunc("/ip", getClientIp)
-	srv.ListenAndServe()
+
+	if port == "" {
+		port = "9000"
+	}
+
+	mux := http.NewServeMux()
+	mux.HandleFunc(route, handler.ClientHandler)
+	err := http.ListenAndServe(":"+port, mux)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
