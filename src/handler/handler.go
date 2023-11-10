@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/diegom0ta/gohttp/src/helper"
@@ -8,5 +9,5 @@ import (
 
 func ClientHandler(w http.ResponseWriter, req *http.Request) {
 	ip := helper.ReadClientIp(req)
-	w.Write([]byte("Your IP is: " + ip))
+	w.Write([]byte(fmt.Sprintf("Your IP is: %s\n", ip)))
 }
