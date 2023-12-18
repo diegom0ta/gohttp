@@ -1,9 +1,12 @@
 FROM golang:1.21
 
-WORKDIR /
+RUN mkdir /gohttp
+
+ADD . /gohttp
 
 EXPOSE 9000
 
-RUN go build src/main.go
+CMD [ "./gohttp/main" ]
 
-CMD [ "./main" ]
+
+
