@@ -1,10 +1,10 @@
 FROM golang:1.21
 
-RUN go build
+RUN go build /gohttp/src/main.go main
 
 EXPOSE 9000
 
-CMD [ "./main" ]
+CMD [ "./gohttp/main" ]
 
 
 
